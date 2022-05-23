@@ -1,0 +1,4 @@
+ 2 2 pepsi 24
+ 3 3 gogoasa 5
+ 5 2 pepsi 24
+ 6 21 apa 2

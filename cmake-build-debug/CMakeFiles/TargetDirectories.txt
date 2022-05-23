@@ -1,0 +1,3 @@
+C:/Users/lucia/CLionProjects/lab09-10/cmake-build-debug/CMakeFiles/lab09_10.dir
+C:/Users/lucia/CLionProjects/lab09-10/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/lucia/CLionProjects/lab09-10/cmake-build-debug/CMakeFiles/rebuild_cache.dir

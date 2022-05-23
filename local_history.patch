@@ -1,0 +1,180 @@
+Index: UI/UI.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/UI/UI.cpp b/UI/UI.cpp
+--- a/UI/UI.cpp	
++++ b/UI/UI.cpp	(date 1652877980749)
+@@ -4,6 +4,7 @@
+ 
+ #include <tuple>
+ #include "UI.h"
++UI::UI(ProductService &ser, ServiceMoney &serM): service(ser), currservice(serM) {}
+ void UI::showMenu() {
+     cout << "1. User Menu. \n";
+     cout << "2. Admin Menu. \n";
+@@ -73,7 +74,6 @@
+                 show_all();
+                 break;
+             case 'c':
+-                show_all_currency();
+                 break;
+             case 'x':
+                 ok = false;
+@@ -105,10 +105,7 @@
+                 unsigned int code, inserted = 0, credit = 0;
+                 cout << "Please choose a product: ";
+                 cin >> code;
+-                Product product = service.get_by_code(code);
+-                map<tuple<unsigned int, string>, unsigned int> copy = currservice.getAll();
+-                insert_money(inserted, credit, product);
+-                change(inserted, product, copy);
++
+                 break;
+             }
+             case 'x':
+@@ -119,12 +116,6 @@
+         }
+     }
+ }
+-UI::UI() = default;
+-
+-UI::UI(ProductService &ser, CurrencyService& cser) {
+-    this->service = ser;
+-    this->currservice = cser;
+-}
+ 
+ void UI::add_product() {
+     int id, cod, price;
+@@ -148,11 +139,6 @@
+     }
+ 
+ }
+-void UI::show_all_currency(){
+-    for(auto & curr:currservice.getAll()){
+-        cout << get<0>(curr.first) << " " << get<1>(curr.first) <<" " << curr.second <<"\n";
+-    }
+-}
+ 
+ void UI::delete_product() {
+     int id;
+@@ -206,53 +192,70 @@
+     }
+ }
+ 
+-void UI::insert_money(unsigned int &inserted, unsigned int credit, Product &product){
+-    while(inserted < product.getPrice()){
+-        cout << "Please insert currency (1/5/10/50):";
+-        cin >> credit;
+-        if(credit == 1 || credit == 5 || credit == 10 || credit == 50){
+-            Currency currency(credit);
+-            currservice.create(currency);
+-            inserted +=credit;
+-        }
+-        else{
+-            cout << "We don't accept this type of currency. \n";
++//void UI::insert_money(unsigned int &inserted, unsigned int credit, Product &product){
++//    while(inserted < product.getPrice()){
++//        cout << "Please insert currency (1/5/10/50):";
++//        cin >> credit;
++//        if(credit == 1 || credit == 5 || credit == 10 || credit == 50 || credit == 0.1){
++//            Money currency(credit);
++//            currservice.create(currency);
++//            inserted +=credit;
++//        }
++//        else{
++//            cout << "We don't accept this type of currency. \n";
++//        }
++//    }
++//}
++void UI::buy_product(){
++    int inserted = 0, code, credit;
++    cout << "Please choose a product: ";
++    cin >> code;
++    if(service.get_by_code(code) == Product(0,0,"",0)){
++        cout << "The product doesn't exist!";
++    }
++    else
++    {
++        vector<Money> old = currservice.get_all();
++        Product product = service.get_by_code(code);
++        while(inserted < product.getPrice()){
++            cout << "Please insert currency (1/5/10/50):";
++            cin >> credit;
+         }
+     }
+ }
+ 
+-void UI::change(unsigned int &inserted, Product& product, map<tuple<unsigned int, string>, unsigned int> copy){
+-    map<tuple<unsigned int, string>, unsigned int> result = currservice.change(product.getPrice(), inserted);
+-    map<tuple<unsigned int, string>, unsigned int>::reverse_iterator it;
+-    if(inserted - product.getPrice() == 0){
+-        cout << "Thank you for your purchase! \n";
+-        service.delete_prod(product);
+-    }
+-    else{
+-        unsigned int checker = 0;
+-        for(it = result.rbegin();it != result.rend();it++){
+-            checker+=it->second;
+-        }
+-        if(checker==0){
+-            cout << "Our vending machine doesn't have money. Pick up your money.\n";
+-
+-        }else{
+-            unsigned int change = 0;
+-            for(it = result.rbegin();it != result.rend();it++){
+-                change += get<0>(it->first) * it->second;
+-            }
+-            if(change == inserted - product.getPrice()){
+-                service.delete_prod(product);
+-                cout << "Please pick up your change: \n";
+-                for(it = result.rbegin();it != result.rend();it++){
+-                    if(it->second!=0)
+-                    {
+-                        cout << it->second << "banknotes of " << get<0>(it->first) << " Lei.\n";}
+-                }
+-                cout << "A total of: " << change << " Lei.\n";
+-            }else{
+-                cout << "Out vending machine doesn't have money. Pick up your money.\n";
+-            }
+-        }
+-    }
+-}
+\ No newline at end of file
++//void UI::change(unsigned int &inserted, Product& product, const map<tuple<unsigned int, string>, unsigned int>& copy){
++//    map<tuple<unsigned int, string>, unsigned int> result = currservice.change(product.getPrice(), inserted);
++//    map<tuple<unsigned int, string>, unsigned int>::reverse_iterator it;
++//    if(inserted - product.getPrice() == 0){
++//        cout << "Thank you for your purchase! \n";
++//        service.delete_prod(product);
++//    }
++//    else{
++//        unsigned int checker = 0;
++//        for(it = result.rbegin();it != result.rend();it++){
++//            checker+=it->second;
++//        }
++//        if(checker==0){
++//            cout << "Our vending machine doesn't have money. Pick up your money.\n";
++//
++//        }else{
++//            unsigned int change = 0;
++//            for(it = result.rbegin();it != result.rend();it++){
++//                change += get<0>(it->first) * it->second;
++//            }
++//            if(change == inserted - product.getPrice()){
++//                service.delete_prod(product);
++//                cout << "Please pick up your change: \n";
++//                for(it = result.rbegin();it != result.rend();it++){
++//                    if(it->second!=0)
++//                    {
++//                        cout << it->second << "banknotes of " << get<0>(it->first) << " Lei.\n";}
++//                }
++//                cout << "A total of: " << change << " Lei.\n";
++//            }else{
++//                cout << "Out vending machine doesn't have money. Pick up your money.\n";
++//            }
++//        }
++//    }
++//}
+\ No newline at end of file
